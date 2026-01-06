@@ -1,4 +1,4 @@
-package model
+package dto
 
 type Form struct {
     ID   string `json:"id"`

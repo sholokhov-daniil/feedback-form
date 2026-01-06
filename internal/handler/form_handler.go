@@ -1,22 +1,22 @@
-package form
+package handler
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/sholokhov-daniil/feedback-form/model"
+	"github.com/sholokhov-daniil/feedback-form/internal/handler/dto"
 )
 
-func All(response http.ResponseWriter, request *http.Request) {
+func GetAllForms(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("Content-Type", "application/json")
 	
 	// Берем данные из BD
-	forms := []model.Form{
+	forms := []dto.Form{
 		{
 			ID:   "1",
 			Name: "Пример формы",
-			Fields: []model.FormField{
+			Fields: []dto.FormField{
 				{Name: "email", Type: ""},
 				{Name: "message", Type: "text"},
 			},
@@ -27,16 +27,16 @@ func All(response http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(response).Encode(forms)
 }
 
-func Get(response http.ResponseWriter, request *http.Request) {
+func GetFormById(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("Content-Type", "application/json")
 
 	id := chi.URLParam(request, "id")
 
 	// Заглушка для примера
-	form := model.Form{
+	form := dto.Form{
 		ID:   id,
 		Name: "Пример формы",
-		Fields: []model.FormField{
+		Fields: []dto.FormField{
 			{Name: "email", Type: ""},
 			{Name: "message", Type: "text"},
 		},
