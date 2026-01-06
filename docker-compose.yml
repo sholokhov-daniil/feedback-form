@@ -1,29 +1,59 @@
 version: "3.9"
 
 services:
+  traefik:
+    image: traefik:v3.6
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8081:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`localhost`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=web"
+    networks:
+      - feedback-network
+
   feedback-api:
     build: .
-    container_name: feedback-api
-    ports:
-      - "8080:8080"
     environment:
-      - GO_ENV=development
-      - DATABASE_URL=postgres://user:pass@db:5432/forms?sslmode=disable
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - SERVER_PORT=${HOST_PORT}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.feedback.rule=Host(`${HOST_NAME}`)"
+      - "traefik.http.routers.feedback.entrypoints=web"
+      - "traefik.http.services.feedback.loadbalancer.server.port=${HOST_PORT}"
     depends_on:
       - db
-    restart: unless-stopped
+    networks:
+      - feedback-network
 
   db:
     image: postgres:15-alpine
-    container_name: feedback-db
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: forms
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - feedback-network
 
 volumes:
   pgdata:
+
+networks:
+  feedback-network:
+    driver: bridge

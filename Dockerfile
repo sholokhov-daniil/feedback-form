@@ -1,30 +1,34 @@
-# Используем официальный Go образ
+# Этап сборки
 FROM golang:1.25-alpine AS build
 
-# Создаем рабочую директорию
 WORKDIR /app
 
-# Копируем go.mod и go.sum
-COPY go.mod go.sum ./
+# Устанавливаем зависимости для сборки
+RUN apk add --no-cache git
 
-# Загружаем зависимости
+# Копируем только модули сначала (кэширование)
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Копируем все исходники
 COPY . .
 
 # Собираем бинарник
-RUN go build -o feedback-api ./cmd/api
+RUN CGO_ENABLED=0 GOOS=linux go build -o feedback-api .
 
-# Минимальный финальный образ
+# Минимальный образ для запуска
 FROM alpine:latest
 WORKDIR /app
+
+# Устанавливаем tzdata для работы с временем
+RUN apk --no-cache add tzdata ca-certificates
 
 # Копируем собранный бинарник
 COPY --from=build /app/feedback-api .
 
-# Прокидываем порт
+# Копируем .env файл если нужен (опционально)
+# COPY .env .env
+
 EXPOSE 8080
 
-# Запуск сервиса
 CMD ["./feedback-api"]

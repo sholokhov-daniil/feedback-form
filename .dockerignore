@@ -1,0 +1,37 @@
+# Файлы конфигурации Docker
+docker-compose.yml
+.dockerignore
+Dockerfile
+
+# Системные файлы
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Файлы окружения (опасно включать в образ!)
+.env
+.env.*
+
+# Артефакты сборки
+bin/
+dist/
+vendor/
+coverage.out
+
+# Логи и базы данных
+*.log
+*.db
+
+# Документация
+README.md
+CHANGELOG.md
+LICENSE
+
+# Другие специфичные папки (если есть)
+node_modules/
+__pycache__/
+target/
