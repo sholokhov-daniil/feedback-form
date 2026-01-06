@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  feedback-api:
+    build: .
+    container_name: feedback-api
+    ports:
+      - "8080:8080"
+    environment:
+      - GO_ENV=development
+      - DATABASE_URL=postgres://user:pass@db:5432/forms?sslmode=disable
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: feedback-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: forms
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
