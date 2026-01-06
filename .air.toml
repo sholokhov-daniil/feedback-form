@@ -1,0 +1,14 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # Используем точку перед путем и явное указание файла
+  cmd = "go build -o ./tmp/main ./cmd/api/main.go"
+  bin = "./tmp/main"
+  include_ext = ["go", "toml"]
+  exclude_dir = ["tmp", "vendor"]
+  # Добавляем задержку, чтобы Docker успел пробросить файлы
+  delay = 1000 
+
+[screen]
+  clear_on_rebuild = true

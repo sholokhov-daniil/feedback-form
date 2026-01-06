@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/sholokhov-daniil/feedback-form/internal/handler/dto"
 )
 
@@ -30,7 +29,7 @@ func GetAllForms(response http.ResponseWriter, request *http.Request) {
 func GetFormById(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("Content-Type", "application/json")
 
-	id := chi.URLParam(request, "id")
+	id := request.PathValue("id")
 
 	// Заглушка для примера
 	form := dto.Form{

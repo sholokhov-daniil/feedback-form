@@ -24,7 +24,7 @@ services:
   feedback-api:
     build: .
     volumes:
-      - .:/app  # Монтируем текущую папку в /app контейнера
+      - .:/app
     command: ["air"]
     environment:
       - DB_HOST=${DB_HOST}
