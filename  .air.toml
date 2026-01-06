@@ -1,0 +1,32 @@
+root = "."
+testdata_dir = "testdata"
+tmp_dir = "tmp"
+
+[build]
+  # Путь к основному файлу
+  main = "main.go"
+  # Бинарник будет в tmp/feedback-api
+  bin = "./tmp/feedback-api"
+  # Полная пересборка
+  full_bin = ""
+  # Команды для сборки
+  cmd = "go build -o ./tmp/feedback-api ./"
+  # Задержка после изменения
+  delay = 1000
+  # Параллельная сборка
+  parallel = true
+  # Файлы для отслеживания
+  include_ext = ["go", "tpl", "tmpl", "html"]
+  # Игнорировать
+  exclude_dir = ["assets", "tmp", "vendor", "node_modules"]
+  # Флаги сборки
+  flags = []
+
+[log]
+  # Логи в stdout
+  main_only = false
+  time = false
+
+[misc]
+  # Автооткрытие браузера
+  clean_on_exit = true
