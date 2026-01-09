@@ -54,8 +54,27 @@ services:
     networks:
       - feedback-network
 
+  pgadmin:
+    image: dpage/pgadmin4:9.11.0
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`${PGADMIN_HOST}`)"
+      - "traefik.http.routers.pgadmin.entrypoints=web"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=${PGADMIN_PORT}"
+    networks:
+      - feedback-network
+
+
 volumes:
   pgdata:
+  pgadmin_data:
 
 networks:
   feedback-network:
