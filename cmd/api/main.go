@@ -2,26 +2,25 @@ package main
 
 import (
 	"log"
-	"os"
 	"net/http"
 
+	"github.com/sholokhov-daniil/feedback-form/internal/db"
+	"github.com/sholokhov-daniil/feedback-form/internal/config"
 	"github.com/sholokhov-daniil/feedback-form/internal/handler"
 )
 
 
 func main() {
-	port := os.Getenv("HOST_PORT")
+	config := config.Load();
 
-	if port == "" {
-		port = "8080"
-	}
+	database := db.Open(&config.DB)
+	defer database.Close()
 
 	mux := http.NewServeMux()
-	handler.RegisterRoutes(mux)
+	handler.RegisterRoutes(mux, database)
 
-
-	log.Fatal(http.ListenAndServe(":" + port, mux))
-	if err := http.ListenAndServe(":" + port, mux); err != nil {
+	log.Fatal(http.ListenAndServe(":" + config.Host.Port, mux))
+	if err := http.ListenAndServe(":" + config.Host.Port, mux); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }

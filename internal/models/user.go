@@ -2,10 +2,10 @@ package models
 
 import "time"
 
-type Form struct {
-    ID         string    `db:"id" json:"id"`
+type User struct {
+    ID         int       `db:"id" json:"id"`
     Active     bool      `db:"active" json:"active"`
-    UserID     int       `db:"user_id" json:"user_id"`
+    Name       string    `db:"name" json:"name"`
     DateCreate time.Time `db:"date_create" json:"date_create"`
     DateUpdate time.Time `db:"date_update" json:"date_update"`
 }
