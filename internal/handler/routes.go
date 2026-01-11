@@ -7,22 +7,44 @@ import (
 	"github.com/sholokhov-daniil/feedback-form/internal/middleware"
 )
 
-type Middleware func(http.Handler) http.Handler
-
-func Chain(h http.Handler, mws ...Middleware) http.Handler {
-    for i := len(mws) - 1; i >= 0; i-- {
-        h = mws[i](h)
-    }
-    return h
+type Route struct {
+	Method string
+	Path string
+	Handler http.HandlerFunc
+	Middlewares []middleware.Middleware
 }
 
 func RegisterRoutes(mux *http.ServeMux, db *sqlx.DB) {
-	auth := middleware.Auth(db)
+	routes := getConfig()
 
-	mux.Handle("GET /forms", auth(http.HandlerFunc(GetAllForms)))
+    for _, route := range routes {
+        handler := middleware.Chain(
+            http.HandlerFunc(route.Handler),
+            route.Middlewares...,
+        )
+        mux.Handle(route.Method+" "+route.Path, handler)
+    }
+}
 
-	mux.Handle("GET /forms/{id}", Chain(
-		http.HandlerFunc(GetFormById), 
-		auth,
-	))
+func getConfig() []Route {
+	return []Route{
+		{
+			Method: "GET",
+			Path: "/forms",
+			Handler: GetAllForms,
+			Middlewares: []middleware.Middleware{
+				middleware.JSONMiddleware,
+				middleware.AuthBearerMiddleware,
+			},
+		},
+		{
+			Method: "GET",
+			Path: "/forms/{id}",
+			Handler: GetFormById,
+			Middlewares: []middleware.Middleware{
+				middleware.JSONMiddleware,
+				middleware.AuthBearerMiddleware,
+			},
+		},
+	}
 }

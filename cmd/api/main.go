@@ -16,8 +16,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	handler.RegisterRoutes(mux, container.Database)
-
-	log.Fatal(http.ListenAndServe(":" + container.Config.Host.Port, mux))
+	
 	if err := http.ListenAndServe(":" + container.Config.Host.Port, mux); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
