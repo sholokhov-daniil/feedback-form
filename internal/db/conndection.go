@@ -1,34 +1,30 @@
 package db
 
 import (
-	"fmt"
-	"log"
+    "fmt"
+    "log"
 
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	"github.com/sholokhov-daniil/feedback-form/internal/config"
+    "gorm.io/driver/postgres"
+    "gorm.io/gorm"
+    "github.com/sholokhov-daniil/feedback-form/internal/config"
 )
 
-func Open(cfg *config.DBConfig) *sqlx.DB {
+func Open(cfg *config.DBConfig) *gorm.DB {
 	if cfg.User == "" || cfg.Password == "" || cfg.Name == "" || cfg.Host == "" {
 		log.Fatal("Database environment variables are not set")
 	}
 
 	dsn := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name,
-	)
+        "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+        cfg.Host, cfg.User, cfg.Password, cfg.Name, cfg.Port,
+    )
 
-	db, err := sqlx.Connect("postgres", dsn)
-	if err != nil {
-		log.Fatalf("Failed to connect to DB: %v", err)
-	}
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(5)
-	db.SetConnMaxLifetime(0)
+    if err != nil {
+        log.Fatalf("Failed to connect to DB: %v", err)
+    }
 
-	fmt.Println("Database connected")
 
-	return db;
+	return db
 } 

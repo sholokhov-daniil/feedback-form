@@ -1,28 +1,48 @@
 package models
 
-import "time"
+import (
+    "time"
+)
 
 type Form struct {
-    ID         string    `db:"id" json:"id"`
-    Active     bool      `db:"active" json:"active"`
-    UserID     int       `db:"user_id" json:"user_id"`
-    DateCreate time.Time `db:"date_create" json:"date_create"`
-    DateUpdate time.Time `db:"date_update" json:"date_update"`
+    ID         string    `gorm:"primaryKey;type:uuid" json:"id"`
+    Active     bool      `gorm:"default:true;not null" json:"active"`
+    UserID     int       `gorm:"not null" json:"user_id"`
+    DateCreate time.Time `gorm:"autoCreateTime;not null" json:"date_create"`
+    DateUpdate time.Time `gorm:"autoUpdateTime;not null" json:"date_update"`
+    
+    Fields []Field `gorm:"foreignKey:FormID;constraint:OnDelete:CASCADE;" json:"fields,omitempty"`
+}
+
+func (Form) TableName() string {
+    return "forms"
 }
 
 type Field struct {
-    ID         string    `db:"id" json:"id"`
-    FormID     string    `db:"form_id" json:"form_id"`
-    Code       string    `db:"code" json:"code"`
-    Active     bool      `db:"active" json:"active"`
-    Name       string    `db:"name" json:"name"`
-    TypeID     int       `db:"type" json:"type_id"`
-    Settings   string    `db:"settings" json:"settings"`
-    DateCreate time.Time `db:"date_create" json:"date_create"`
-    DateUpdate time.Time `db:"date_update" json:"date_update"`
+    ID         string    `gorm:"primaryKey;type:uuid" json:"id"`
+    FormID     string    `gorm:"type:uuid;not null" json:"form_id"`
+    Code       string    `gorm:"size:100;not null" json:"code"`
+    Active     bool      `gorm:"default:true;not null" json:"active"`
+    Name       string    `gorm:"size:255;not null" json:"name"`
+    TypeID     int       `gorm:"column:type;not null" json:"type_id"`
+    Settings   string    `gorm:"type:text" json:"settings"`
+    DateCreate time.Time `gorm:"autoCreateTime;not null" json:"date_create"`
+    DateUpdate time.Time `gorm:"autoUpdateTime;not null" json:"date_update"`
+    
+    // Связи (опционально)
+    Form     Form       `gorm:"foreignKey:FormID" json:"-"`
+    TypeInfo FieldType  `gorm:"foreignKey:TypeID" json:"type_info,omitempty"`
+}
+
+func (Field) TableName() string {
+    return "fields"
 }
 
 type FieldType struct {
-    ID   int    `db:"id" json:"id"`
-    Name string `db:"name" json:"name"`
+    ID   int    `gorm:"primaryKey;autoIncrement" json:"id"`
+    Name string `gorm:"size:100;unique;not null" json:"name"`
+}
+
+func (FieldType) TableName() string {
+    return "field_types"
 }

@@ -3,18 +3,18 @@ package repository
 import (
     "context"
 
-    "github.com/jmoiron/sqlx"
+    "gorm.io/gorm"
     "github.com/sholokhov-daniil/feedback-form/internal/models"
 )
 
 type FormRepository struct {
-    db *sqlx.DB
+    db *gorm.DB
 }
 
 //
 // Создает новый репозиторий 
 //
-func NewFormRepository(db *sqlx.DB) *FormRepository {
+func NewFormRepository(db *gorm.DB) *FormRepository {
     return &FormRepository{db: db}
 }
 
@@ -22,31 +22,66 @@ func NewFormRepository(db *sqlx.DB) *FormRepository {
 // Создает новую форму пользователя
 //
 func (r *FormRepository) CreateForm(ctx context.Context, form *models.Form) error {
-    query := `
-        INSERT INTO forms (id, active, user_id, date_create, date_update)
-        VALUES ($1, $2, $3, NOW(), NOW())
-    `
-    _, err := r.db.ExecContext(ctx, query, form.ID, form.Active, form.UserID)
-    return err
+    // GORM автоматически заполнит DateCreate и DateUpdate благодаря тегам autoCreateTime/autoUpdateTime
+    result := r.db.WithContext(ctx).Create(form)
+    return result.Error
 }
 
 //
 // Возвращаем все формы пользователя
 //
 func (r *FormRepository) GetFormsByUserID(ctx context.Context, userID int) ([]models.Form, error) {
-    query := `
-        SELECT id, active, user_id, date_create, date_update
-        FROM forms
-        WHERE user_id = $1
-        ORDER BY date_create DESC
-    `
-
     var forms []models.Form
-    err := r.db.SelectContext(ctx, &forms, query, userID)
-	
-    if err != nil {
-        return nil, err
-    }
+    
+    // GORM запрос с условиями и сортировкой
+    result := r.db.WithContext(ctx).
+        Where("user_id = ?", userID).
+        Order("date_create DESC").
+        Find(&forms)
+    
+    return forms, result.Error
+}
 
-    return forms, nil
+//
+// Получить форму по ID с полями (опционально)
+//
+func (r *FormRepository) GetFormByID(ctx context.Context, formID string) (*models.Form, error) {
+    var form models.Form
+    
+    result := r.db.WithContext(ctx).
+        Preload("Fields"). // Предзагрузка связанных полей
+        First(&form, "id = ?", formID)
+    
+    return &form, result.Error
+}
+
+//
+// Обновить форму
+//
+func (r *FormRepository) UpdateForm(ctx context.Context, form *models.Form) error {
+    // GORM автоматически обновит DateUpdate благодаря тегу autoUpdateTime
+    result := r.db.WithContext(ctx).Save(form)
+    return result.Error
+}
+
+//
+// Удалить форму (мягкое удаление если есть DeletedAt, иначе физическое)
+//
+func (r *FormRepository) DeleteForm(ctx context.Context, formID string) error {
+    result := r.db.WithContext(ctx).
+        Delete(&models.Form{}, "id = ?", formID)
+    return result.Error
+}
+
+//
+// Получить форму по ID и UserID (для проверки владельца)
+//
+func (r *FormRepository) GetFormByIDAndUserID(ctx context.Context, formID string, userID int) (*models.Form, error) {
+    var form models.Form
+    
+    result := r.db.WithContext(ctx).
+        Where("id = ? AND user_id = ?", formID, userID).
+        First(&form)
+    
+    return &form, result.Error
 }

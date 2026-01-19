@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"context"
-	"log"
 	"log/slog" // Современный стандарт логирования
 	"net/http"
 	"strings"
+
 	"github.com/sholokhov-daniil/feedback-form/internal/models"
 	"github.com/sholokhov-daniil/feedback-form/internal/response"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
@@ -22,34 +22,45 @@ func GetUser(ctx context.Context) (*models.UserAuth, bool) {
 
 func AuthBearerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-			log.Println(authHeader)
+		token := getToken(r)
 
-			if !strings.HasPrefix(authHeader, "Bearer ") {
-				slog.Warn("auth: missing or invalid header", "remote_addr", r.RemoteAddr)
-				http.Error(w, response.GetUnauthorizedResponse().ToJson(), http.StatusUnauthorized)
-				return
-			}
+		if token == "" {
+			unauthorized(w)
+			return
+		}
 
-			token := strings.TrimPrefix(authHeader, "Bearer ")
-			
-			// Проверка токена с учетом времени жизни прямо в SQL
-			var ua models.UserAuth
-			query := `
-				SELECT id, user_id, active, expires_at 
-				FROM user_auth 
-				WHERE secret_hash = $1 AND active = true AND (expires_at IS NULL OR expires_at > NOW())
-				LIMIT 1`
-			
-			db := repository.ServiceContainer().Database
+        ua, err := repository.GetByToken(token)
+        if err != nil {
+            slog.Error("auth: repository error", "err", err)
+            unauthorized(w)
+            return
+        }
 
-			if err := db.Get(&ua, query, token); err != nil {
-				slog.Error("auth: failed to get user", "err", err)
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
-				return
-			}
+        if ua == nil {
+            slog.Error("auth: token not found " + token)
+			unauthorized(w)
+            return
+        }
 
-			ctx := context.WithValue(r.Context(), userContextKey, &ua)
-			next.ServeHTTP(w, r.WithContext(ctx))
+        ctx := context.WithValue(r.Context(), userContextKey, ua)
+        next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func unauthorized(w http.ResponseWriter) {
+	http.Error(w, response.GetUnauthorizedResponse().ToJson(), http.StatusUnauthorized)
+}
+
+func getToken(r *http.Request) string {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return ""
+	}
+
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+		return ""
+	}
+
+	return parts[1]
 }

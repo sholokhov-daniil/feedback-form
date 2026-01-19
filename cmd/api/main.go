@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sholokhov-daniil/feedback-form/internal/db"
 	"github.com/sholokhov-daniil/feedback-form/internal/config"
+	"github.com/sholokhov-daniil/feedback-form/internal/db"
 	"github.com/sholokhov-daniil/feedback-form/internal/handler"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
 )
@@ -13,9 +13,16 @@ import (
 
 func main() {
 	container := loadContainer()
+	
+	db, err := container.Database.DB();
+
+	if err == nil {
+		defer db.Close()
+	}
+
 
 	mux := http.NewServeMux()
-	handler.RegisterRoutes(mux, container.Database)
+	handler.RegisterRoutes(mux)
 	
 	if err := http.ListenAndServe(":" + container.Config.Host.Port, mux); err != nil {
 		log.Fatalf("Server failed: %v", err)
@@ -27,7 +34,6 @@ func loadContainer() *repository.Container {
 	container.Config = *config.Load();
 
 	db := db.Open(&container.Config.DB)
-	defer db.Close()
 
 	container.Database = db;
 

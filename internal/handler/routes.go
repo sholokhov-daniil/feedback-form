@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/sholokhov-daniil/feedback-form/internal/middleware"
 )
 
@@ -14,7 +13,7 @@ type Route struct {
 	Middlewares []middleware.Middleware
 }
 
-func RegisterRoutes(mux *http.ServeMux, db *sqlx.DB) {
+func RegisterRoutes(mux *http.ServeMux) {
 	routes := getConfig()
 
     for _, route := range routes {

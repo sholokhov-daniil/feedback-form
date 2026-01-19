@@ -10,6 +10,11 @@ import (
 type Config struct {
 	Host HostConfig
 	DB DBConfig
+	Logger LoggerConfig
+}
+
+type LoggerConfig struct {
+	Path string `env:"LOG_PATH" envDefault:""`
 }
 
 type HostConfig struct {

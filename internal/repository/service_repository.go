@@ -3,7 +3,7 @@ package repository
 import (
 	"sync"
 
-	"github.com/jmoiron/sqlx"
+	"gorm.io/gorm"
 	"github.com/sholokhov-daniil/feedback-form/internal/config"
 )
 
@@ -13,7 +13,7 @@ var (
 )
 
 type Container struct {
-	Database *sqlx.DB
+	Database *gorm.DB
 	Config config.Config
 }
 
