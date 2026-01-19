@@ -13,6 +13,14 @@ type APIError struct {
 	Code 	string `json:"code"`
 }
 
+func New(d any) Response {
+	return Response{
+		Status: true,
+		Data: d,
+		Errors: []APIError{},
+	}
+}
+
 func (r Response) ToJson() string {
 	d, err := json.Marshal(r)
 
@@ -35,7 +43,7 @@ func GetUnauthorizedResponse() Response {
 	}
 }
 
-func GetErrorResponse(message string, code string) Response  {
+func CreateErrorResponse(message string, code string) Response  {
 	return Response {
 		Status: false,
 		Errors: []APIError{

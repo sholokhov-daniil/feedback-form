@@ -7,22 +7,27 @@ import (
     "github.com/sholokhov-daniil/feedback-form/internal/models"
 )
 
-type FormRepository struct {
+type FormRepository interface {
+    GeyByID(ctx context.Context, formID string) (*models.Form, error)
+    GetByUserID(ctx context.Context, userID int) ([]models.Form, error)
+    GetByIDAndUserID(ctx context.Context, formID string, userID int) (*models.Form, error)
+}
+
+type formRepositoryImpl struct {
     db *gorm.DB
 }
 
 //
 // Создает новый репозиторий 
 //
-func NewFormRepository(db *gorm.DB) *FormRepository {
-    return &FormRepository{db: db}
+func CreateFormRepository(db *gorm.DB) FormRepository {
+    return &formRepositoryImpl{db: db}
 }
 
 //
 // Создает новую форму пользователя
 //
-func (r *FormRepository) CreateForm(ctx context.Context, form *models.Form) error {
-    // GORM автоматически заполнит DateCreate и DateUpdate благодаря тегам autoCreateTime/autoUpdateTime
+func (r *formRepositoryImpl) CreateForm(ctx context.Context, form *models.Form) error {
     result := r.db.WithContext(ctx).Create(form)
     return result.Error
 }
@@ -30,7 +35,7 @@ func (r *FormRepository) CreateForm(ctx context.Context, form *models.Form) erro
 //
 // Возвращаем все формы пользователя
 //
-func (r *FormRepository) GetFormsByUserID(ctx context.Context, userID int) ([]models.Form, error) {
+func (r *formRepositoryImpl) GetByUserID(ctx context.Context, userID int) ([]models.Form, error) {
     var forms []models.Form
     
     // GORM запрос с условиями и сортировкой
@@ -45,7 +50,7 @@ func (r *FormRepository) GetFormsByUserID(ctx context.Context, userID int) ([]mo
 //
 // Получить форму по ID с полями (опционально)
 //
-func (r *FormRepository) GetFormByID(ctx context.Context, formID string) (*models.Form, error) {
+func (r *formRepositoryImpl) GeyByID(ctx context.Context, formID string) (*models.Form, error) {
     var form models.Form
     
     result := r.db.WithContext(ctx).
@@ -56,27 +61,9 @@ func (r *FormRepository) GetFormByID(ctx context.Context, formID string) (*model
 }
 
 //
-// Обновить форму
-//
-func (r *FormRepository) UpdateForm(ctx context.Context, form *models.Form) error {
-    // GORM автоматически обновит DateUpdate благодаря тегу autoUpdateTime
-    result := r.db.WithContext(ctx).Save(form)
-    return result.Error
-}
-
-//
-// Удалить форму (мягкое удаление если есть DeletedAt, иначе физическое)
-//
-func (r *FormRepository) DeleteForm(ctx context.Context, formID string) error {
-    result := r.db.WithContext(ctx).
-        Delete(&models.Form{}, "id = ?", formID)
-    return result.Error
-}
-
-//
 // Получить форму по ID и UserID (для проверки владельца)
 //
-func (r *FormRepository) GetFormByIDAndUserID(ctx context.Context, formID string, userID int) (*models.Form, error) {
+func (r *formRepositoryImpl) GetByIDAndUserID(ctx context.Context, formID string, userID int) (*models.Form, error) {
     var form models.Form
     
     result := r.db.WithContext(ctx).
