@@ -1,14 +1,23 @@
 package response
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
+
+type ErrorCode string
+
+const (
+	ErrorCodeServer string = "SERVER_ERROR"
+	ErrorCodeAuthError string = "AUTH_ERROR"
+)
 
 type Response struct {
 	Status bool    `json:"status"`
-	Data   any 	   `json:"data,omitempty"`
-	Errors []APIError `json:"errors,omitempty"`
+	Data   any 	   `json:"data"`
+	Errors []Error `json:"errors"`
 }
 
-type APIError struct {
+type Error struct {
 	Message string `json:"message"`
 	Code 	string `json:"code"`
 }
@@ -17,7 +26,7 @@ func New(d any) Response {
 	return Response{
 		Status: true,
 		Data: d,
-		Errors: []APIError{},
+		Errors: []Error{},
 	}
 }
 
@@ -31,22 +40,26 @@ func (r Response) ToJson() string {
 	return string(d)
 }
 
-func GetUnauthorizedResponse() Response {
+func CreateUnauthorizedResponse() Response {
 	return Response{
 		Status: false,
-		Errors: []APIError{
+		Errors: []Error{
 			{
 				Message: "Unauthorized",
-				Code: "401",
+				Code: ErrorCodeAuthError,
 			},
 		},
 	}
 }
 
+func CreateServerErrorResponse(message string) Response {
+	return CreateErrorResponse(message, ErrorCodeServer)
+}
+
 func CreateErrorResponse(message string, code string) Response  {
 	return Response {
 		Status: false,
-		Errors: []APIError{
+		Errors: []Error{
 			{
 				Message: message,
 				Code: code,

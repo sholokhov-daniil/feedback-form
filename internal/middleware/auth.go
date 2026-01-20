@@ -41,7 +41,7 @@ func AuthBearerMiddleware(next http.Handler) http.Handler {
 		u, err := repository.NewUserRepository().GetByID(ctx, ua.UserID)
 
 		if err != nil {
-			slog.Error("user: not found!!!!!!! ", "err", err)
+			slog.Error("user: not found", "err", err)
 			unauthorized(w)
 			return
 		}
@@ -54,7 +54,7 @@ func AuthBearerMiddleware(next http.Handler) http.Handler {
 }
 
 func unauthorized(w http.ResponseWriter) {
-	http.Error(w, response.GetUnauthorizedResponse().ToJson(), http.StatusUnauthorized)
+	http.Error(w, response.CreateUnauthorizedResponse().ToJson(), http.StatusUnauthorized)
 }
 
 func getToken(r *http.Request) string {
