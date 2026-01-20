@@ -1,14 +1,22 @@
 package dto
 
-type Form struct {
-    ID   string `json:"id"`
-    Name string `json:"name"`
-	Fields []FormField `json:"fields"`
+import "time"
+
+type FormResponse struct {
+	ID string `json:"id"`
+	Active bool `json:"active"`
+	DateCreate time.Time `json:"date_create"`
+	DateUpdate time.Time `json:"date_update"`
+	Fields []FieldResponse `json:"fields"`
 }
 
-type FormField struct {
+type FieldResponse struct {
 	ID string `json:"id"`
-	Code string `json:code`
+	FormID string `json:"form_id"`
+	Code string `json:"code"`
+	Active bool `json:"active"`
 	Name string `json:"name"`
-	Type string `json:"type"`
+	TypeID int `json:"type_id"`
+	DateCreate time.Time `json:"date_create"`
+	DateUpdate time.Time `json:"date_update"`
 }

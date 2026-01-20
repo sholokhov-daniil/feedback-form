@@ -1,24 +1,18 @@
 package middleware
 
 import (
-	"context"
 	"log/slog" // Современный стандарт логирования
 	"net/http"
 	"strings"
 
-	"github.com/sholokhov-daniil/feedback-form/internal/models"
-	"github.com/sholokhov-daniil/feedback-form/internal/response"
+	"github.com/sholokhov-daniil/feedback-form/internal/context"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
+	"github.com/sholokhov-daniil/feedback-form/internal/response"
 )
 
-type contextKey string
-const userContextKey contextKey = "user_auth"
+const authTypeContextKey string = "user_auth"
+const userContextKey string = "user"
 
-// Хелпер для получения пользователя из контекста (типобезопасно)
-func GetUser(ctx context.Context) (*models.UserAuth, bool) {
-	u, ok := ctx.Value(userContextKey).(*models.UserAuth)
-	return u, ok
-}
 
 func AuthBearerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +36,19 @@ func AuthBearerMiddleware(next http.Handler) http.Handler {
             return
         }
 
-        ctx := context.WithValue(r.Context(), userContextKey, ua)
+		ctx := r.Context()
+
+		u, err := repository.NewUserRepository().GetByID(ctx, ua.UserID)
+
+		if err != nil {
+			slog.Error("user: not found!!!!!!! ", "err", err)
+			unauthorized(w)
+			return
+		}
+
+		ctx = context.SetUserAuth(ctx, ua)
+		ctx = context.SetUser(ctx, u)
+
         next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

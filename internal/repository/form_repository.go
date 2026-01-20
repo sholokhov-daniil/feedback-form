@@ -20,14 +20,15 @@ type formRepositoryImpl struct {
 //
 // Создает новый репозиторий 
 //
-func CreateFormRepository(db *gorm.DB) FormRepository {
+func NewFormRepository() FormRepository {
+    db := ServiceContainer().Database
     return &formRepositoryImpl{db: db}
 }
 
 //
 // Создает новую форму пользователя
 //
-func (r *formRepositoryImpl) CreateForm(ctx context.Context, form *models.Form) error {
+func (r *formRepositoryImpl) Create(ctx context.Context, form *models.Form) error {
     result := r.db.WithContext(ctx).Create(form)
     return result.Error
 }
@@ -35,12 +36,12 @@ func (r *formRepositoryImpl) CreateForm(ctx context.Context, form *models.Form) 
 //
 // Возвращаем все формы пользователя
 //
-func (r *formRepositoryImpl) GetByUserID(ctx context.Context, userID int) ([]models.Form, error) {
+func (r *formRepositoryImpl) GetByUserID(ctx context.Context, u int) ([]models.Form, error) {
     var forms []models.Form
     
     // GORM запрос с условиями и сортировкой
     result := r.db.WithContext(ctx).
-        Where("user_id = ?", userID).
+        Where("user_id = ?", u).
         Order("date_create DESC").
         Find(&forms)
     

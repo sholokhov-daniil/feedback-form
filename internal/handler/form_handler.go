@@ -4,45 +4,60 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/sholokhov-daniil/feedback-form/internal/handler/dto"
-	"github.com/sholokhov-daniil/feedback-form/internal/response"
+	"github.com/sholokhov-daniil/feedback-form/internal/context"
+	"github.com/sholokhov-daniil/feedback-form/internal/handler/normalizer"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
+	"github.com/sholokhov-daniil/feedback-form/internal/response"
 )
 
 func GetAllForms(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	
 	ctx := r.Context()
+	u, err := context.GetUser(ctx)
 
-	db := repository.ServiceContainer().Database
-	repo := repository.CreateFormRepository(db)
+	if err != nil {
+		response.CreateErrorResponse(err.Error(), "500")
+		return
+	}
 
-	forms, err := repo.GetByUserID(ctx, 1)
+	repo := repository.NewFormRepository()
+
+	forms, err := repo.GetByUserID(ctx, u.ID)
 
 	if err != nil {
 		json.NewEncoder(w).Encode(response.CreateErrorResponse(err.Error(), "500"))
 		return
 	}
 
-	res := response.New(forms)
+	res := response.New(normalizer.FormListNormalize(forms))
 	
 	json.NewEncoder(w).Encode(res)
 }
 
-func GetFormById(response http.ResponseWriter, request *http.Request) {
-	response.Header().Set("Content-Type", "application/json")
+func GetFormById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
-	id := request.PathValue("id")
+	ctx := r.Context()
 
-	// Заглушка для примера
-	form := dto.Form{
-		ID:   id,
-		Name: "Пример формы",
-		Fields: []dto.FormField{
-			{Name: "email", Type: ""},
-			{Name: "message", Type: "text"},
-		},
+	id := r.PathValue("id")
+	u, err := context.GetUser(ctx)
+
+	if err != nil {
+		response.CreateErrorResponse(err.Error(), "500")
+		return
 	}
 
-	json.NewEncoder(response).Encode(form)
+	repo := repository.NewFormRepository()
+
+	form, err := repo.GetByIDAndUserID(ctx, id, u.ID)
+
+	if err != nil {
+		json.NewEncoder(w).Encode(response.CreateErrorResponse(err.Error(), "500"))
+		return
+	}
+
+	res := response.New(normalizer.FormNormalize(form))
+
+	json.NewEncoder(w).Encode(res)
 }
