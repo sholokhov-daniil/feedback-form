@@ -14,7 +14,7 @@
 
 ## Описание API методов
 
-Все доступные API методы описаны через swagger http://localhost/docs/swagger/  
+Все доступные API методы описаны через [swagger](http://feedback.127.0.0.1.nip.io/docs/swagger/)
 Для генерации swagger нужно в корне проекта выполнить команду
 
 ```bash
