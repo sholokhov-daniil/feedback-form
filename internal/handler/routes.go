@@ -29,7 +29,7 @@ func getConfig() []Route {
 	return []Route{
 		{
 			Method: "GET",
-			Path: "/forms",
+			Path: "/api/v1/forms",
 			Handler: GetAllForms,
 			Middlewares: []middleware.Middleware{
 				middleware.JSONMiddleware,
@@ -38,7 +38,7 @@ func getConfig() []Route {
 		},
 		{
 			Method: "GET",
-			Path: "/forms/{id}",
+			Path: "/api/v1/form/{id}",
 			Handler: GetFormById,
 			Middlewares: []middleware.Middleware{
 				middleware.JSONMiddleware,

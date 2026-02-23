@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"encoding/json"
 	"net/http"
 
@@ -11,6 +10,18 @@ import (
 	"github.com/sholokhov-daniil/feedback-form/internal/response"
 )
 
+
+// Returns all available forms
+// @Summary      List feedback forms
+// @Description  Returns all available forms
+// @Tags         forms
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} response.Response
+// @Failure      400 {object} response.Response
+// @Failure      500 {object} response.Response
+// @Router       /forms [get]
+// @Security     BearerAuth
 func GetAllForms(w http.ResponseWriter, r *http.Request) {	
 	ctx := r.Context()
 	u, err := context.GetUser(ctx)
@@ -31,11 +42,20 @@ func GetAllForms(w http.ResponseWriter, r *http.Request) {
 
 	res := response.New(normalizer.FormListNormalize(forms))
 
-	log.Println(res)
-
 	json.NewEncoder(w).Encode(res)
 }
 
+
+// Returns a specific user form by its ID
+// @Summary Returns a specific user form by its ID
+// @Tags         forms
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Form ID"
+// @Success      200 {object} response.Response
+// @Failure      400 {object} response.Response
+// @Failure      500 {object} response.Response
+// @Router       /form/{id} [get]
 func GetFormById(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
