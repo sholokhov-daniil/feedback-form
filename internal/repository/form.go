@@ -10,6 +10,7 @@ import (
 )
 
 type FormRepository interface {
+    Create(ctx context.Context, form *models.Form) error
     GetByID(ctx context.Context, formID string) (*models.Form, error)
     GetByUserID(ctx context.Context, userID int) ([]models.Form, error)
     GetByIDAndUserID(ctx context.Context, formID string, userID int) (*models.Form, error)

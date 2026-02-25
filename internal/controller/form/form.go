@@ -8,7 +8,9 @@ import (
 
 	"github.com/sholokhov-daniil/feedback-form/internal/context"
 	ex "github.com/sholokhov-daniil/feedback-form/internal/exceptions"
+	"github.com/sholokhov-daniil/feedback-form/internal/handler/dto"
 	"github.com/sholokhov-daniil/feedback-form/internal/handler/normalizer"
+	"github.com/sholokhov-daniil/feedback-form/internal/models"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
 	"github.com/sholokhov-daniil/feedback-form/internal/response"
 )
@@ -17,19 +19,54 @@ type FormHandler struct {
 	repo repository.FormRepository
 }
 
+type okCreate struct {
+	ID string `json:"id"`
+}
+
 func NewFormHandler(repo repository.FormRepository) *FormHandler {
 	return &FormHandler{repo: repo}
 }
 
 // Creates a new form
-func (h *FormHandler) Add(w http.ResponseWriter, r *http.Request) {
-	// ctx := r.Context()
-	// u, err := context.GetUser(ctx)
+// @Summary      Creates a new form
+// @Description  Creates a new form for a specific user
+// @Tags         forms
+// @Accept       json
+// @Produce      json
+// @Param        request body dto.CreateFormRequest true "Form creation data"
+// @Success      200 {object} okCreate
+// @Failure      400 {array} response.Error
+// @Failure      500 {array} response.Error
+// @Router       /forms [post]
+// @Security     BearerAuth
+func (h *FormHandler) Create(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	u, err := context.GetUser(ctx)
 
-	// if err != nil {
-	// 	h.handleRepoError(w, err);
-	// 	return
-	// }
+	if err != nil {
+		h.handleRepoError(w, err);
+		return
+	}
+
+	var req dto.CreateFormRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.respondError(w, http.StatusBadRequest, "Invalid JSON format")
+        return
+	}
+
+	model := models.Form{
+		Active: req.Active,
+		UserID: u.ID,
+	}
+
+	if err := h.repo.Create(ctx, &model); err != nil {
+		h.respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	h.respondJSON(w, http.StatusOK, okCreate{
+		ID: model.ID,
+	});
 }
 
 // Returns all available forms
@@ -38,9 +75,9 @@ func (h *FormHandler) Add(w http.ResponseWriter, r *http.Request) {
 // @Tags         forms
 // @Accept       json
 // @Produce      json
-// @Success      200 {object} []dto.FormResponse
-// @Failure      400 {object} []response.Error
-// @Failure      500 {object} []response.Error
+// @Success      200 {array} dto.FormResponse
+// @Failure      400 {array} response.Error
+// @Failure      500 {array} response.Error
 // @Router       /forms [get]
 // @Security     BearerAuth
 func (h *FormHandler) GetList(w http.ResponseWriter, r *http.Request) {
@@ -70,8 +107,8 @@ func (h *FormHandler) GetList(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id path string true "Form ID"
 // @Success      200 {object} dto.FormResponse
-// @Failure      404 {object} []response.Error
-// @Failure      500 {object} []response.Error
+// @Failure      404 {array} response.Error
+// @Failure      500 {array} response.Error
 // @Router       /forms/{id} [get]
 func (h *FormHandler) GetById(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -114,8 +151,13 @@ func (h *FormHandler) respondError(w http.ResponseWriter, status int, message st
 			resp = response.CreateNotFoundErrorResponse(message)
 		case http.StatusInternalServerError:
 			resp = response.CreateServerErrorResponse(message)
+		case http.StatusBadRequest:
+			resp = response.CreateBadRequestError(message)
 		default:
-			resp = map[string]string{"error": message}
+			resp = response.Error{
+				Message: message,
+				Code: "",
+			}
     }
 
     h.respondJSON(w, status, resp)

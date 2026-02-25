@@ -21,6 +21,15 @@ func RouteList() []Route {
 			},
 		},
 		{
+			Method: "POST",
+			Path: "/api/v1/forms",
+			Handler: formHandler.Create,
+			Middlewares: []middleware.Middleware{
+				middleware.JSONMiddleware,
+				middleware.AuthBearerMiddleware,
+			},
+		},
+		{
 			Method: "GET",
 			Path: "/api/v1/forms/{id}",
 			Handler: formHandler.GetById,

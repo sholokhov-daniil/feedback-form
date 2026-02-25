@@ -1,7 +1,11 @@
 package models
 
 import (
-    "time"
+	"time"
+
+    
+    "github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Form struct {
@@ -12,6 +16,13 @@ type Form struct {
     DateUpdate time.Time `gorm:"autoUpdateTime;not null" json:"date_update"`
     
     Fields []Field `gorm:"foreignKey:FormID;constraint:OnDelete:CASCADE;" json:"fields,omitempty"`
+}
+
+func (f *Form) BeforeCreate(db *gorm.DB) error {
+    if f.ID == "" {
+        f.ID = uuid.New().String()
+    }
+    return nil
 }
 
 func (Form) TableName() string {

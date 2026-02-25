@@ -1,5 +1,17 @@
 basePath: /api/v1
 definitions:
+  controller.okCreate:
+    properties:
+      id:
+        type: string
+    type: object
+  dto.CreateFormRequest:
+    properties:
+      active:
+        type: boolean
+      name:
+        type: string
+    type: object
   dto.FieldResponse:
     properties:
       active:
@@ -32,6 +44,8 @@ definitions:
           $ref: '#/definitions/dto.FieldResponse'
         type: array
       id:
+        type: string
+      name:
         type: string
     type: object
   response.Error:
@@ -81,6 +95,41 @@ paths:
       security:
       - BearerAuth: []
       summary: List feedback forms
+      tags:
+      - forms
+    post:
+      consumes:
+      - application/json
+      description: Creates a new form for a specific user
+      parameters:
+      - description: Form creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateFormRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.okCreate'
+        "400":
+          description: Bad Request
+          schema:
+            items:
+              $ref: '#/definitions/response.Error'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            items:
+              $ref: '#/definitions/response.Error'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Creates a new form
       tags:
       - forms
   /forms/{id}:

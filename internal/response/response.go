@@ -8,6 +8,7 @@ const (
 	ErrorCodeServer string = "SERVER_ERROR"
 	ErrorCodeAuthError string = "AUTH_ERROR"
 	ErrorCodeNotFound string = "NOT_FOUND"
+	ErrorCodeBadRequest string = "BAD_REQUEST"
 )
 
 type Error struct {
@@ -44,5 +45,12 @@ func CreateNotFoundErrorResponse(message string) Error {
 	return Error{
 		Message: message,
 		Code: ErrorCodeNotFound,
+	}
+}
+
+func CreateBadRequestError(message string) Error {
+	return Error{
+		Message: message,
+		Code: ErrorCodeBadRequest,
 	}
 }
