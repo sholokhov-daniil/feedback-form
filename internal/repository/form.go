@@ -1,14 +1,16 @@
 package repository
 
 import (
+    "errors"
     "context"
 
     "gorm.io/gorm"
+    ex "github.com/sholokhov-daniil/feedback-form/internal/exceptions"
     "github.com/sholokhov-daniil/feedback-form/internal/models"
 )
 
 type FormRepository interface {
-    GeyByID(ctx context.Context, formID string) (*models.Form, error)
+    GetByID(ctx context.Context, formID string) (*models.Form, error)
     GetByUserID(ctx context.Context, userID int) ([]models.Form, error)
     GetByIDAndUserID(ctx context.Context, formID string, userID int) (*models.Form, error)
 }
@@ -51,14 +53,18 @@ func (r *formRepositoryImpl) GetByUserID(ctx context.Context, u int) ([]models.F
 //
 // Получить форму по ID с полями (опционально)
 //
-func (r *formRepositoryImpl) GeyByID(ctx context.Context, formID string) (*models.Form, error) {
+func (r *formRepositoryImpl) GetByID(ctx context.Context, formID string) (*models.Form, error) {
     var form models.Form
     
-    result := r.db.WithContext(ctx).
+    res := r.db.WithContext(ctx).
         Preload("Fields"). // Предзагрузка связанных полей
         First(&form, "id = ?", formID)
     
-    return &form, result.Error
+	if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+		return nil, ex.ErrFormNotFound
+	}
+
+    return &form, res.Error
 }
 
 //

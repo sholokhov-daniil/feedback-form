@@ -40,7 +40,7 @@ func main() {
 
 	docs.RunSwagger(mux)
 
-	handler.RegisterRoutes(mux)
+	handler.Registration(mux, handler.RouteList())
 	
 	if err := http.ListenAndServe(":" + container.Config.Host.Port, mux); err != nil {
 		log.Fatalf("Server failed: %v", err)

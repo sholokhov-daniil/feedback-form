@@ -1,15 +1,24 @@
-package handler
+package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	ex "github.com/sholokhov-daniil/feedback-form/internal/exceptions"
 	"github.com/sholokhov-daniil/feedback-form/internal/context"
 	"github.com/sholokhov-daniil/feedback-form/internal/handler/normalizer"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
 	"github.com/sholokhov-daniil/feedback-form/internal/response"
 )
 
+type FormHandler struct {
+	repo repository.FormRepository
+}
+
+func NewFormHandler(repo repository.FormRepository) *FormHandler {
+	return &FormHandler{repo: repo}
+}
 
 // Returns all available forms
 // @Summary      List feedback forms
@@ -22,7 +31,7 @@ import (
 // @Failure      500 {object} response.Response
 // @Router       /forms [get]
 // @Security     BearerAuth
-func GetAllForms(w http.ResponseWriter, r *http.Request) {	
+func (h *FormHandler) GetAll(w http.ResponseWriter, r *http.Request) {	
 	ctx := r.Context()
 	u, err := context.GetUser(ctx)
 
@@ -31,9 +40,7 @@ func GetAllForms(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo := repository.NewFormRepository()
-
-	forms, err := repo.GetByUserID(ctx, u.ID)
+	forms, err := h.repo.GetByUserID(ctx, u.ID)
 
 	if err != nil {
 		json.NewEncoder(w).Encode(response.CreateServerErrorResponse(err.Error()))
@@ -53,26 +60,24 @@ func GetAllForms(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id path string true "Form ID"
 // @Success      200 {object} response.Response
-// @Failure      400 {object} response.Response
+// @Failure      404 {object} response.Response
 // @Failure      500 {object} response.Response
 // @Router       /form/{id} [get]
-func GetFormById(w http.ResponseWriter, r *http.Request) {
+func (h *FormHandler) GetById(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
 	id := r.PathValue("id")
-	u, err := context.GetUser(ctx)
+
+	form, err := h.repo.GetByID(ctx, id)
 
 	if err != nil {
-		json.NewEncoder(w).Encode(response.CreateServerErrorResponse(err.Error()))
-		return
-	}
+		if errors.Is(err, ex.ErrFormNotFound) {
+			w.WriteHeader(http.StatusNotFound);
+			json.NewEncoder(w).Encode(response.CreateNotFoundErrorResponse(err.Error()))
+		} else {
+			w.WriteHeader(http.StatusInternalServerError);
+			json.NewEncoder(w).Encode(response.CreateServerErrorResponse(err.Error()))
+		}
 
-	repo := repository.NewFormRepository()
-
-	form, err := repo.GetByIDAndUserID(ctx, id, u.ID)
-
-	if err != nil {
-		json.NewEncoder(w).Encode(response.CreateServerErrorResponse(err.Error()))
 		return
 	}
 
