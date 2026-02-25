@@ -1,21 +1,45 @@
 basePath: /api/v1
 definitions:
+  dto.FieldResponse:
+    properties:
+      active:
+        type: boolean
+      code:
+        type: string
+      date_create:
+        type: string
+      date_update:
+        type: string
+      form_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      type_id:
+        type: integer
+    type: object
+  dto.FormResponse:
+    properties:
+      active:
+        type: boolean
+      date_create:
+        type: string
+      date_update:
+        type: string
+      fields:
+        items:
+          $ref: '#/definitions/dto.FieldResponse'
+        type: array
+      id:
+        type: string
+    type: object
   response.Error:
     properties:
       code:
         type: string
       message:
         type: string
-    type: object
-  response.Response:
-    properties:
-      data: {}
-      errors:
-        items:
-          $ref: '#/definitions/response.Error'
-        type: array
-      status:
-        type: boolean
     type: object
 host: localhost:8080
 info:
@@ -28,7 +52,38 @@ info:
   title: Feedback form API
   version: "1.0"
 paths:
-  /form/{id}:
+  /forms:
+    get:
+      consumes:
+      - application/json
+      description: Returns all available forms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.FormResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            items:
+              $ref: '#/definitions/response.Error'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            items:
+              $ref: '#/definitions/response.Error'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List feedback forms
+      tags:
+      - forms
+  /forms/{id}:
     get:
       consumes:
       - application/json
@@ -44,41 +99,20 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
+            $ref: '#/definitions/dto.FormResponse'
+        "404":
+          description: Not Found
           schema:
-            $ref: '#/definitions/response.Response'
+            items:
+              $ref: '#/definitions/response.Error'
+            type: array
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.Response'
+            items:
+              $ref: '#/definitions/response.Error'
+            type: array
       summary: Returns a specific user form by its ID
-      tags:
-      - forms
-  /forms:
-    get:
-      consumes:
-      - application/json
-      description: Returns all available forms
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      summary: List feedback forms
       tags:
       - forms
 securityDefinitions:

@@ -1,8 +1,6 @@
 package response
 
-import (
-	"encoding/json"
-)
+import "encoding/json"
 
 type ErrorCode string
 
@@ -12,63 +10,39 @@ const (
 	ErrorCodeNotFound string = "NOT_FOUND"
 )
 
-type Response struct {
-	Status bool    `json:"status"`
-	Data   any 	   `json:"data"`
-	Errors []Error `json:"errors"`
-}
-
 type Error struct {
 	Message string `json:"message"`
 	Code 	string `json:"code"`
 }
 
-func New(d any) Response {
-	return Response{
-		Status: true,
-		Data: d,
-		Errors: []Error{},
-	}
-}
-
-func (r Response) ToJson() string {
-	d, err := json.Marshal(r)
+func (e Error) ToJson() string {
+	d, err := json.Marshal(e)
 
 	if err != nil {
 		panic(err)
 	}
 
 	return string(d)
+
 }
 
-func CreateUnauthorizedResponse() Response {
-	return Response{
-		Status: false,
-		Errors: []Error{
-			{
-				Message: "Unauthorized",
-				Code: ErrorCodeAuthError,
-			},
-		},
+func CreateUnauthorizedResponse() Error {
+	return Error{
+		Message: "Unauthorized",
+			Code: ErrorCodeAuthError,
 	}
 }
 
-func CreateServerErrorResponse(message string) Response {
-	return CreateErrorResponse(message, ErrorCodeServer)
-}
-
-func CreateErrorResponse(message string, code string) Response  {
-	return Response {
-		Status: false,
-		Errors: []Error{
-			{
-				Message: message,
-				Code: code,
-			},
-		},
+func CreateServerErrorResponse(message string) Error {
+	return Error{
+		Message: message,
+		Code: ErrorCodeServer,
 	}
 }
 
-func CreateNotFoundErrorResponse(message string) Response {
-	return CreateErrorResponse(message, ErrorCodeNotFound)
+func CreateNotFoundErrorResponse(message string) Error {
+	return Error{
+		Message: message,
+		Code: ErrorCodeNotFound,
+	}
 }

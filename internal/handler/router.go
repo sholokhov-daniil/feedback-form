@@ -21,3 +21,7 @@ func Registration(mux *http.ServeMux, routes []Route) {
         mux.Handle(route.Method+" "+route.Path, handler)
     }
 }
+
+func registrationNotFound(mux *http.ServeMux) {
+	
+}

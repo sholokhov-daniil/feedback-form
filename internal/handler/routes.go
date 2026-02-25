@@ -1,7 +1,8 @@
 package handler
 
 import (
-	controller "github.com/sholokhov-daniil/feedback-form/internal/controller/form"
+	formController "github.com/sholokhov-daniil/feedback-form/internal/controller/form"
+	sysController "github.com/sholokhov-daniil/feedback-form/internal/controller"
 	"github.com/sholokhov-daniil/feedback-form/internal/middleware"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
 )
@@ -21,17 +22,25 @@ func RouteList() []Route {
 		},
 		{
 			Method: "GET",
-			Path: "/api/v1/form/{id}",
+			Path: "/api/v1/forms/{id}",
 			Handler: formHandler.GetById,
 			Middlewares: []middleware.Middleware{
 				middleware.JSONMiddleware,
 				middleware.AuthBearerMiddleware,
 			},
 		},
+		{
+			Method: "GET",
+			Path: "/",
+			Handler: sysController.PageNotFound,
+			Middlewares: []middleware.Middleware{
+				middleware.JSONMiddleware,
+			},
+		},
 	}
 }
 
-func newFormHandler() *controller.FormHandler {
+func newFormHandler() *formController.FormHandler {
 	formRepo := repository.NewFormRepository();
-	return controller.NewFormHandler(formRepo)
+	return formController.NewFormHandler(formRepo)
 }
