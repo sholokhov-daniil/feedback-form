@@ -61,7 +61,7 @@ func (r *formRepositoryImpl) GetByID(ctx context.Context, formID string) (*model
         First(&form, "id = ?", formID)
     
 	if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-		return nil, ex.ErrFormNotFound
+		return nil, ex.ErrorFormNotFound
 	}
 
     return &form, res.Error

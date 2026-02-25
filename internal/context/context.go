@@ -2,9 +2,10 @@ package context
 
 import (
 	"context"
-	"errors"
+
 
 	"github.com/sholokhov-daniil/feedback-form/internal/models"
+	ex "github.com/sholokhov-daniil/feedback-form/internal/exceptions"
 )
 
 const userContextKey string = "user"
@@ -18,13 +19,13 @@ func GetUser(ctx context.Context) (*models.User, error) {
 	v := ctx.Value(userContextKey)
 
 	if v == nil {
-		return nil, errors.New("user not found in context")
+		return nil, ex.ErrorUserNotFound
 	}
 
 	u, ok := v.(*models.User)
 
 	if !ok {
-		return nil, errors.New("invalid user type in context")
+		return nil, ex.ErrorUserInvalidType
 	}
 
 	return u, nil
@@ -38,13 +39,13 @@ func GetUserAuth(ctx context.Context) (*models.UserAuth, error) {
 	v := ctx.Value(authTypeContextKey)
 
 	if v == nil {
-		return nil, errors.New("user auth not found in context")
+		return nil, ex.ErrorUserAuthNotFound
 	}
 
 	ua, ok := v.(*models.UserAuth)
 
 	if !ok {
-		return nil, errors.New("invalid user auth type in context")
+		return nil, ex.ErrorUserInvalidType
 	}
 
 	return ua, nil

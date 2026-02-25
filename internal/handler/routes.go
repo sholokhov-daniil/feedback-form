@@ -2,7 +2,7 @@ package handler
 
 import (
 	formController "github.com/sholokhov-daniil/feedback-form/internal/controller/form"
-	sysController "github.com/sholokhov-daniil/feedback-form/internal/controller"
+	sysController "github.com/sholokhov-daniil/feedback-form/internal/controller/sys"
 	"github.com/sholokhov-daniil/feedback-form/internal/middleware"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
 )
@@ -14,7 +14,7 @@ func RouteList() []Route {
 		{
 			Method: "GET",
 			Path: "/api/v1/forms",
-			Handler: formHandler.GetAll,
+			Handler: formHandler.GetList,
 			Middlewares: []middleware.Middleware{
 				middleware.JSONMiddleware,
 				middleware.AuthBearerMiddleware,

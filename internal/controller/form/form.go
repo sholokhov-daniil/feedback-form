@@ -21,6 +21,17 @@ func NewFormHandler(repo repository.FormRepository) *FormHandler {
 	return &FormHandler{repo: repo}
 }
 
+// Creates a new form
+func (h *FormHandler) Add(w http.ResponseWriter, r *http.Request) {
+	// ctx := r.Context()
+	// u, err := context.GetUser(ctx)
+
+	// if err != nil {
+	// 	h.handleRepoError(w, err);
+	// 	return
+	// }
+}
+
 // Returns all available forms
 // @Summary      List feedback forms
 // @Description  Returns all available forms
@@ -32,7 +43,7 @@ func NewFormHandler(repo repository.FormRepository) *FormHandler {
 // @Failure      500 {object} []response.Error
 // @Router       /forms [get]
 // @Security     BearerAuth
-func (h *FormHandler) GetAll(w http.ResponseWriter, r *http.Request) {	
+func (h *FormHandler) GetList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	u, err := context.GetUser(ctx)
 
@@ -115,7 +126,7 @@ func (h *FormHandler) respondError(w http.ResponseWriter, status int, message st
 // and any other unexpected error (logs it and returns HTTP 500).
 // The actual HTTP response is sent via respondError.
 func (h *FormHandler) handleRepoError(w http.ResponseWriter, err error) {
-    if errors.Is(err, ex.ErrFormNotFound) {
+    if errors.Is(err, ex.ErrorFormNotFound) {
         h.respondError(w, http.StatusNotFound, err.Error())
         return
     }
