@@ -4,7 +4,7 @@ import (
 	"context"
 
 
-	"github.com/sholokhov-daniil/feedback-form/internal/models"
+	"github.com/sholokhov-daniil/feedback-form/internal/models/user"
 	ex "github.com/sholokhov-daniil/feedback-form/internal/exceptions"
 )
 

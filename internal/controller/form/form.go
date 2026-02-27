@@ -10,7 +10,6 @@ import (
 	ex "github.com/sholokhov-daniil/feedback-form/internal/exceptions"
 	"github.com/sholokhov-daniil/feedback-form/internal/handler/dto"
 	"github.com/sholokhov-daniil/feedback-form/internal/handler/normalizer"
-	"github.com/sholokhov-daniil/feedback-form/internal/models"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
 	"github.com/sholokhov-daniil/feedback-form/internal/response"
 )
@@ -34,7 +33,7 @@ func NewFormHandler(repo repository.FormRepository) *FormHandler {
 // @Accept       json
 // @Produce      json
 // @Param        request body dto.CreateFormRequest true "Form creation data"
-// @Success      200 {object} okCreate
+// @Success      200 {object} dto.FormResponse
 // @Failure      400 {array} response.Error
 // @Failure      500 {array} response.Error
 // @Router       /forms [post]
@@ -54,19 +53,17 @@ func (h *FormHandler) Create(w http.ResponseWriter, r *http.Request) {
         return
 	}
 
-	model := models.Form{
-		Active: req.Active,
-		UserID: u.ID,
-	}
+	model := req.ToModel(u.ID)
 
 	if err := h.repo.Create(ctx, &model); err != nil {
 		h.respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.respondJSON(w, http.StatusOK, okCreate{
-		ID: model.ID,
-	});
+	response := dto.ToFormResponse(model)
+	w.Header().Set("Location", "/forms/" + model.ID)
+
+	h.respondJSON(w, http.StatusCreated, response);
 }
 
 // Returns all available forms

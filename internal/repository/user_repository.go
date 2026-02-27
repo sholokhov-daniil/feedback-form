@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/sholokhov-daniil/feedback-form/internal/models"
+	"github.com/sholokhov-daniil/feedback-form/internal/models/user"
 	"gorm.io/gorm"
 )
 

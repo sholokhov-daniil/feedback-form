@@ -6,7 +6,7 @@ import (
 
     "gorm.io/gorm"
     ex "github.com/sholokhov-daniil/feedback-form/internal/exceptions"
-    "github.com/sholokhov-daniil/feedback-form/internal/models"
+    "github.com/sholokhov-daniil/feedback-form/internal/models/form"
 )
 
 type FormRepository interface {

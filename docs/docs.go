@@ -100,7 +100,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controller.okCreate"
+                            "$ref": "#/definitions/dto.FormResponse"
                         }
                     },
                     "400": {
@@ -175,11 +175,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controller.okCreate": {
+        "dto.CreateFieldRequest": {
             "type": "object",
             "properties": {
-                "id": {
+                "active": {
+                    "type": "boolean"
+                },
+                "code": {
                     "type": "string"
+                },
+                "form_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -188,6 +200,12 @@ const docTemplate = `{
             "properties": {
                 "active": {
                     "type": "boolean"
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CreateFieldRequest"
+                    }
                 },
                 "name": {
                     "type": "string"

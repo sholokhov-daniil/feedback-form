@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/sholokhov-daniil/feedback-form/internal/models"
+	"github.com/sholokhov-daniil/feedback-form/internal/models/user"
 )
 
 func GetByToken(token string) (*models.UserAuth, error) {

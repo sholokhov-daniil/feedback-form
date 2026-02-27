@@ -1,14 +1,26 @@
 basePath: /api/v1
 definitions:
-  controller.okCreate:
+  dto.CreateFieldRequest:
     properties:
-      id:
+      active:
+        type: boolean
+      code:
         type: string
+      form_id:
+        type: string
+      name:
+        type: string
+      type_id:
+        type: integer
     type: object
   dto.CreateFormRequest:
     properties:
       active:
         type: boolean
+      fields:
+        items:
+          $ref: '#/definitions/dto.CreateFieldRequest'
+        type: array
       name:
         type: string
     type: object
@@ -114,7 +126,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controller.okCreate'
+            $ref: '#/definitions/dto.FormResponse'
         "400":
           description: Bad Request
           schema:

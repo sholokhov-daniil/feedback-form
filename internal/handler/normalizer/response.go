@@ -2,7 +2,7 @@ package normalizer
 
 import (
 	"github.com/sholokhov-daniil/feedback-form/internal/handler/dto"
-	"github.com/sholokhov-daniil/feedback-form/internal/models"
+	"github.com/sholokhov-daniil/feedback-form/internal/models/form"
 )
 
 func FormListNormalize(l []models.Form) []dto.FormResponse {
