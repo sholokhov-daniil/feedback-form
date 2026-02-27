@@ -43,14 +43,14 @@ func (h *FormHandler) Create(w http.ResponseWriter, r *http.Request) {
 	u, err := context.GetUser(ctx)
 
 	if err != nil {
-		h.handleRepoError(w, err);
+		h.handleRepoError(w, err)
 		return
 	}
 
 	var req dto.CreateFormRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.respondError(w, http.StatusBadRequest, "Invalid JSON format")
-        return
+		return
 	}
 
 	model := req.ToModel(u.ID)
@@ -61,9 +61,9 @@ func (h *FormHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := dto.ToFormResponse(model)
-	w.Header().Set("Location", "/forms/" + model.ID)
+	w.Header().Set("Location", "/forms/"+model.ID)
 
-	h.respondJSON(w, http.StatusCreated, response);
+	h.respondJSON(w, http.StatusCreated, response)
 }
 
 // Returns all available forms
@@ -82,14 +82,14 @@ func (h *FormHandler) GetList(w http.ResponseWriter, r *http.Request) {
 	u, err := context.GetUser(ctx)
 
 	if err != nil {
-		h.handleRepoError(w, err);
+		h.handleRepoError(w, err)
 		return
 	}
 
 	forms, err := h.repo.GetByUserID(ctx, u.ID)
 
 	if err != nil {
-		h.handleRepoError(w, err);
+		h.handleRepoError(w, err)
 		return
 	}
 
@@ -114,10 +114,9 @@ func (h *FormHandler) GetById(w http.ResponseWriter, r *http.Request) {
 	form, err := h.repo.GetByID(ctx, id)
 
 	if err != nil {
-		h.handleRepoError(w, err);
+		h.handleRepoError(w, err)
 		return
 	}
-
 
 	data := normalizer.FormNormalize(form)
 	h.respondJSON(w, http.StatusOK, data)
@@ -127,11 +126,11 @@ func (h *FormHandler) GetById(w http.ResponseWriter, r *http.Request) {
 // It sets the Content-Type header to application/json and handles encoding errors by logging them.
 // This method is used internally by other handler methods to send successful responses.
 func (h *FormHandler) respondJSON(w http.ResponseWriter, status int, data interface{}) {
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(status)
-    if err := json.NewEncoder(w).Encode(data); err != nil {
-        log.Printf("failed to encode JSON response: %v", err)
-    }
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("failed to encode JSON response: %v", err)
+	}
 }
 
 // respondError writes a JSON error response with the given status code and message.
@@ -141,23 +140,23 @@ func (h *FormHandler) respondJSON(w http.ResponseWriter, status int, data interf
 // - others: falls back to a simple {"error": message} object.
 // The actual JSON writing is delegated to respondJSON.
 func (h *FormHandler) respondError(w http.ResponseWriter, status int, message string) {
-    var resp interface{}
+	var resp interface{}
 
-    switch status {
-		case http.StatusNotFound:
-			resp = response.CreateNotFoundErrorResponse(message)
-		case http.StatusInternalServerError:
-			resp = response.CreateServerErrorResponse(message)
-		case http.StatusBadRequest:
-			resp = response.CreateBadRequestError(message)
-		default:
-			resp = response.Error{
-				Message: message,
-				Code: "",
-			}
-    }
+	switch status {
+	case http.StatusNotFound:
+		resp = response.CreateNotFoundErrorResponse(message)
+	case http.StatusInternalServerError:
+		resp = response.CreateServerErrorResponse(message)
+	case http.StatusBadRequest:
+		resp = response.CreateBadRequestError(message)
+	default:
+		resp = response.Error{
+			Message: message,
+			Code:    "",
+		}
+	}
 
-    h.respondJSON(w, status, resp)
+	h.respondJSON(w, status, resp)
 }
 
 // handleRepoError processes errors returned by the repository.
@@ -165,11 +164,11 @@ func (h *FormHandler) respondError(w http.ResponseWriter, status int, message st
 // and any other unexpected error (logs it and returns HTTP 500).
 // The actual HTTP response is sent via respondError.
 func (h *FormHandler) handleRepoError(w http.ResponseWriter, err error) {
-    if errors.Is(err, ex.ErrorFormNotFound) {
-        h.respondError(w, http.StatusNotFound, err.Error())
-        return
-    }
+	if errors.Is(err, ex.ErrorFormNotFound) {
+		h.respondError(w, http.StatusNotFound, err.Error())
+		return
+	}
 
-    log.Printf("unexpected repository error: %v", err)
-    h.respondError(w, http.StatusInternalServerError, "internal server error")
+	log.Printf("unexpected repository error: %v", err)
+	h.respondError(w, http.StatusInternalServerError, "internal server error")
 }

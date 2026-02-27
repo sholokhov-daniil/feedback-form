@@ -4,10 +4,9 @@ import (
 	"log"
 	"net/http"
 
-
-	"github.com/sholokhov-daniil/feedback-form/internal/docs"
 	"github.com/sholokhov-daniil/feedback-form/internal/config"
 	"github.com/sholokhov-daniil/feedback-form/internal/db"
+	"github.com/sholokhov-daniil/feedback-form/internal/docs"
 	"github.com/sholokhov-daniil/feedback-form/internal/handler"
 	"github.com/sholokhov-daniil/feedback-form/internal/repository"
 )
@@ -29,8 +28,8 @@ import (
 // @name Authorization
 func main() {
 	container := loadContainer()
-	
-	db, err := container.Database.DB();
+
+	db, err := container.Database.DB()
 
 	if err == nil {
 		defer db.Close()
@@ -41,19 +40,19 @@ func main() {
 	docs.RunSwagger(mux)
 
 	handler.Registration(mux, handler.RouteList())
-	
-	if err := http.ListenAndServe(":" + container.Config.Host.Port, mux); err != nil {
+
+	if err := http.ListenAndServe(":"+container.Config.Host.Port, mux); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }
 
 func loadContainer() *repository.Container {
 	container := repository.ServiceContainer()
-	container.Config = *config.Load();
+	container.Config = *config.Load()
 
 	db := db.Open(&container.Config.DB)
 
-	container.Database = db;
+	container.Database = db
 
-	return container;
+	return container
 }

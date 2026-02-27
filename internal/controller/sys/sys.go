@@ -8,6 +8,6 @@ import (
 )
 
 func PageNotFound(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound);
+	w.WriteHeader(http.StatusNotFound)
 	json.NewEncoder(w).Encode(response.CreateNotFoundErrorResponse("Method not found"))
 }

@@ -17,11 +17,11 @@ func FormListNormalize(l []models.Form) []dto.FormResponse {
 
 func FormNormalize(m *models.Form) dto.FormResponse {
 	return dto.FormResponse{
-		ID: m.ID,
-		Active: m.Active,
+		ID:         m.ID,
+		Active:     m.Active,
 		DateCreate: m.DateCreate,
 		DateUpdate: m.DateUpdate,
-		Fields: FieldListNormalize(m.Fields),
+		Fields:     FieldListNormalize(m.Fields),
 	}
 }
 
@@ -37,12 +37,12 @@ func FieldListNormalize(l []models.Field) []dto.FieldResponse {
 
 func FieldNormalize(m *models.Field) dto.FieldResponse {
 	return dto.FieldResponse{
-		ID: m.ID,
-		FormID: m.FormID,
-		Code: m.Code,
-		Active: m.Active,
-		Name: m.Name,
-		TypeID:	m.TypeID,
+		ID:         m.ID,
+		FormID:     m.FormID,
+		Code:       m.Code,
+		Active:     m.Active,
+		Name:       m.Name,
+		TypeID:     m.TypeID,
 		DateCreate: m.DateCreate,
 		DateUpdate: m.DateUpdate,
 	}

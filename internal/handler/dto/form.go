@@ -7,21 +7,21 @@ import (
 )
 
 type FormResponse struct {
-	ID string `json:"id"`
-	Active bool `json:"active"`
-	Name string `json:"name"`
-	DateCreate time.Time `json:"date_create"`
-	DateUpdate time.Time `json:"date_update"`
-	Fields []FieldResponse `json:"fields"`
+	ID         string          `json:"id"`
+	Active     bool            `json:"active"`
+	Name       string          `json:"name"`
+	DateCreate time.Time       `json:"date_create"`
+	DateUpdate time.Time       `json:"date_update"`
+	Fields     []FieldResponse `json:"fields"`
 }
 
 type FieldResponse struct {
-	ID string `json:"id"`
-	FormID string `json:"form_id"`
-	Code string `json:"code"`
-	Active bool `json:"active"`
-	Name string `json:"name"`
-	TypeID int `json:"type_id"`
+	ID         string    `json:"id"`
+	FormID     string    `json:"form_id"`
+	Code       string    `json:"code"`
+	Active     bool      `json:"active"`
+	Name       string    `json:"name"`
+	TypeID     int       `json:"type_id"`
 	DateCreate time.Time `json:"date_create"`
 	DateUpdate time.Time `json:"date_update"`
 }
@@ -34,13 +34,12 @@ type CreateFormRequest struct {
 
 type CreateFieldRequest struct {
 	FormID string `json:"form_id"`
-	Code string `json:"code"`
-	Active bool `json:"active"`
-	Name string `json:"name"`
-	TypeID int `json:"type_id"`
+	Code   string `json:"code"`
+	Active bool   `json:"active"`
+	Name   string `json:"name"`
+	TypeID int    `json:"type_id"`
 }
 
-//
 // ToModel converts CreateFormRequest (DTO) into a models.Form entity.
 //
 // This method is used when creating a new form. It:
@@ -57,7 +56,6 @@ type CreateFieldRequest struct {
 //
 //	model := req.ToModel(userID)
 //	err := repo.Create(ctx, &model)
-//
 func (r CreateFormRequest) ToModel(userID int) models.Form {
 	fields := make([]models.Field, 0, len(r.Fields))
 
@@ -77,7 +75,6 @@ func (r CreateFormRequest) ToModel(userID int) models.Form {
 	}
 }
 
-//
 // ToFormResponse converts a models.Form entity into a FormResponse DTO.
 //
 // This method is used to prepare API responses returned to clients. It:
@@ -94,7 +91,6 @@ func (r CreateFormRequest) ToModel(userID int) models.Form {
 //	form, _ := repo.GetByID(ctx, id)
 //	response := dto.ToFormResponse(*form)
 //	json.NewEncoder(w).Encode(response)
-//
 func ToFormResponse(m models.Form) FormResponse {
 	fields := make([]FieldResponse, len(m.Fields))
 

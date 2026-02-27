@@ -12,8 +12,8 @@ func RouteList() []Route {
 
 	return []Route{
 		{
-			Method: "GET",
-			Path: "/api/v1/forms",
+			Method:  "GET",
+			Path:    "/api/v1/forms",
 			Handler: formHandler.GetList,
 			Middlewares: []middleware.Middleware{
 				middleware.JSONMiddleware,
@@ -21,8 +21,8 @@ func RouteList() []Route {
 			},
 		},
 		{
-			Method: "POST",
-			Path: "/api/v1/forms",
+			Method:  "POST",
+			Path:    "/api/v1/forms",
 			Handler: formHandler.Create,
 			Middlewares: []middleware.Middleware{
 				middleware.JSONMiddleware,
@@ -30,8 +30,8 @@ func RouteList() []Route {
 			},
 		},
 		{
-			Method: "GET",
-			Path: "/api/v1/forms/{id}",
+			Method:  "GET",
+			Path:    "/api/v1/forms/{id}",
 			Handler: formHandler.GetById,
 			Middlewares: []middleware.Middleware{
 				middleware.JSONMiddleware,
@@ -39,8 +39,8 @@ func RouteList() []Route {
 			},
 		},
 		{
-			Method: "GET",
-			Path: "/",
+			Method:  "GET",
+			Path:    "/",
 			Handler: sysController.PageNotFound,
 			Middlewares: []middleware.Middleware{
 				middleware.JSONMiddleware,
@@ -50,6 +50,6 @@ func RouteList() []Route {
 }
 
 func newFormHandler() *formController.FormHandler {
-	formRepo := repository.NewFormRepository();
+	formRepo := repository.NewFormRepository()
 	return formController.NewFormHandler(formRepo)
 }

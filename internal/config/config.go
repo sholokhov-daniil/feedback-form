@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	Host HostConfig
-	DB DBConfig
+	Host   HostConfig
+	DB     DBConfig
 	Logger LoggerConfig
 }
 
@@ -18,7 +18,7 @@ type LoggerConfig struct {
 }
 
 type HostConfig struct {
-	Port	string `env:"HOST_PORT" envDefault:"8080"`
+	Port string `env:"HOST_PORT" envDefault:"8080"`
 }
 
 type DBConfig struct {
@@ -26,7 +26,7 @@ type DBConfig struct {
 	Password string `env:"DB_PASSWORD,required"`
 	Name     string `env:"DB_NAME,required"`
 	Host     string `env:"DB_HOST,required"`
-	Port 	 string `env:"DP_PORT" envDefault:"5432"`
+	Port     string `env:"DP_PORT" envDefault:"5432"`
 }
 
 func Load() *Config {

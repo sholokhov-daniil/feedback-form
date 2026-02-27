@@ -13,7 +13,6 @@ import (
 const authTypeContextKey string = "user_auth"
 const userContextKey string = "user"
 
-
 func AuthBearerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := getToken(r)
@@ -23,18 +22,18 @@ func AuthBearerMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-        ua, err := repository.GetByToken(token)
-        if err != nil {
-            slog.Error("auth: repository error", "err", err)
-            unauthorized(w)
-            return
-        }
-
-        if ua == nil {
-            slog.Error("auth: token not found " + token)
+		ua, err := repository.GetByToken(token)
+		if err != nil {
+			slog.Error("auth: repository error", "err", err)
 			unauthorized(w)
-            return
-        }
+			return
+		}
+
+		if ua == nil {
+			slog.Error("auth: token not found " + token)
+			unauthorized(w)
+			return
+		}
 
 		ctx := r.Context()
 
@@ -49,7 +48,7 @@ func AuthBearerMiddleware(next http.Handler) http.Handler {
 		ctx = context.SetUserAuth(ctx, ua)
 		ctx = context.SetUser(ctx, u)
 
-        next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

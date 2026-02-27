@@ -3,23 +3,23 @@ package repository
 import (
 	"sync"
 
-	"gorm.io/gorm"
 	"github.com/sholokhov-daniil/feedback-form/internal/config"
+	"gorm.io/gorm"
 )
 
 var (
 	instance *Container
-	once 	 sync.Once
+	once     sync.Once
 )
 
 type Container struct {
 	Database *gorm.DB
-	Config config.Config
+	Config   config.Config
 }
 
 func ServiceContainer() *Container {
-	once.Do(func()  {
-		instance = &Container{};
+	once.Do(func() {
+		instance = &Container{}
 	})
 
 	return instance
